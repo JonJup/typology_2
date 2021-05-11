@@ -1,0 +1,7 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+See Soranno et al 2010 for iterative process of adopting a typology to new data. 

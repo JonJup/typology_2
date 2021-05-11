@@ -1,0 +1,93 @@
+---
+output:
+  bookdown::pdf_document2:
+    latex_engine: pdflatex
+    number_sections: yes
+    toc: no
+    includes: 
+        in_header: ../template/header.tex
+    pandoc_args:
+      - --lua-filter=../Extras/scholarly-metadata.lua
+      - --lua-filter=../Extras/author-info-blocks.lua
+title: "Freshwater typology"
+author:
+  - name: "Jonathan F. Jupke"
+    institute: [iES]
+  - name: "Ralf B. Schäfer" 
+    institute: [iES]   
+institute:
+  - iES: iES Landau, Institute for Environmental Sciences, University Koblenz-Landau, Fortstrasse 7, 76829 Landau, Germany
+bibliography: ../parts/ref.bib
+header-includes:
+  - \usepackage[left]{lineno}
+linestretch: 1.2
+colorlinks: true
+csl: ../template/ecology_letters.csl
+filter: pandoc-crossref
+mainfont: Times New Roman
+sansfont: Times New Roman
+fontsize: 12pt
+link-citations: false
+documentclass: article
+geometry: margin=1in
+always_allow_html: yes
+editor_options: 
+  chunk_output_type: console
+---
+---
+nocite: | 
+...
+
+# Acknowledgements {-}
+This study was funded by the GETREAL (Incorporating spatial and seasonal variability in community sensitivity into chemical risk assessment) project, which was funded by the European Chemical Industry Council long-range research initiative (CEFIC-LRi project ECO 50).  
+We are grateful to the staff that collected and analyzed data for the AQUEM, STAR, WISER and ECOSURV projects and to the various water agencies that participated in the abiotic and biotic data collection. 
+
+# Data Availability 
+
+<!------- TODO -------->
+
+<!------- JOURNALS -------- >
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(kableExtra)
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+opts_knit$set(root.dir = here::here())
+```
+
+<!-- SETUP -->
+```{r setup2}
+source("R/setup.R")
+```
+
+
+
+\newpage
+<!-- Abstract -->
+```{r call abstract, child="../parts/abstract.rmd"}
+```
+
+\newpage
+<!-- Introduction --> 
+```{r call intro, child="../parts/introduction.rmd"}
+```
+
+<!-- Method and Materials --> 
+```{r call mm, child="../parts/mm.rmd"}
+```
+
+<!-- Results --> 
+```{r call results, child="../parts/results.rmd"}
+```
+ 
+<!-- Discussion --> 
+```{r call discussion, child="../parts/discussion.rmd"}
+```
+
+<!-- Supplementary Materials --> 
+```{r call supplementary materials, child="../parts/sm.rmd"}
+```
+
+\newpage
+# References 

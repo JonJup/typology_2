@@ -1,0 +1,88 @@
+# Results 
+
+```{r prepare cluster evaluation plot, echo = F, warning = FALSE, message = FALSE}
+source("doc/scripts/prepare_cluster_evaluation.R")
+```
+
+```{r results prepare indval}
+source("doc/scripts/results_indval.R")
+```
+
+```{r results prepare TA}
+source("doc/scripts/results_ta.R")
+```
+
+```{r}
+cmn_t_1 = paste(round(cmn_a_1/n_sites,3)*100, "%")
+cmn_t_2 = paste(round(cmn_a_2/n_sites,3)*100, "%")
+cmn_t_3 = paste(round(cmn_a_3/n_sites,3)*100, "%")
+cmn_t_4 = paste(round(cmn_a_4/n_sites,3)*100, "%")
+cmn_t_5 = paste(round(cmn_a_5/n_sites,3)*100, "%")
+```
+
+## Comparison of classifications 
+<!-- Overview over results --> 
+Overall Illies received the highest score, with `r rank_dat[typ == "illies", total_points]` of 20 possible points, followed by BGR (`r rank_dat[typ == "eea", total_points]`), BRT12 (`r rank_dat[typ == "brt12", total_points]`), GloRiC (`r rank_dat[typ == "gloric", total_points]`) and BRT20 (`r rank_dat[typ == "brt20", total_points]`). 
+
+<!-- CH -->
+The CH was higher in regional typologies than in reach-based typologies and higher in in BGR than in Illies' ecoregions. 
+BRT12 had a higher score than BRT20 and GloRiC had the lowest CH. 
+
+<!-- classification strength --> 
+Most typologies had similar CS, approximately `r cs_eea`.
+Only Illies' ecoregions exceeded 0.05 with a score of `r cs_ill`.     
+
+<!-- IndVal Scores -->
+The Illies' ecoregions had the largest IVS closely followed by GloRiC.
+These two were very close to the biological classification.
+The three other typologies had similar IVS around `r iv_brt20`. 
+        
+<!-- ASW -->
+Increasing the emphasis on compactness (i.e. $p$) decreased the silhouette widths (Figure \@ref(fig:fig-res-sw)).
+All typologies had positive $ASW_{min}$, BGR and Illies' ecoregions were close to the biological typology.
+Reach-based typologies had lower $ASW_{min}$ than regional ones and GloRiCs was slightly higher than the similar scores of BRT12 and BRT20. 
+With $p = 1$, only the ASW of BGR exceeded zero and the random typology. 
+In the remaining typologies, the difference between region- and reach-based typologies shrunk.
+Illies' ecoregions had a slightly higher ASW than BRT12, which had a higher ASW than BRT20.
+GloRiC had the lowest ASW.
+The $ASW_{max}$ is negative for all typologies, including the biological. 
+The absolute value only declined markeldy for BGR, Ilies ecoregions and GloRiC, so that BRT12 had the highest $ASW_{max}$. 
+It was followed by BGR, BRT12, Illies' ecoregions and GloRiC. 
+
+
+```{r fig-res-sw, fig.align="center", fig.height=5, fig.cap="Cluster validity citeria for freshwater typologies. (a) Calinski Harabasz, Classification Strength and Indicator Value score of all eight freshwater typologies. (b) Generalized Silhouette width over the degrees p of the mean. The dashed horizontal line indicates a score of zero."}
+img <- readPNG("figures/eval_cluster_combined.png")
+grid.raster(img)
+```
+
+
+
+## Typical assemblages
+
+We combined the most types in .... 
+
+How many taxa in which TA ... 
+
+Size differenes .... 
+
+Viusalizaton ... see miro board. 
+
+How many in % 
+
+
+We combined the broad river types BRT4 and 5, BRT 2, 3, 8, 9, 10, 11 and 18 as well as BRT 15 and 16 because their Jaccard similarity exceeded 0.8. 
+The BRT4_5 type represents lowland, calcareous rivers irrespective of size, BRT2_3_8_9_10_11 represents low and mid-altitude rivers of varying geology and BRT 15_16 represents non-siliceous high-altitude rivers. 
+
+
+`r ta_used_taxa` of `r ta_total_taxa` taxa were included in the typical assemblages.
+Most at the `r ta_mostcommon_lvl` level (`r ta_mostcommon_lvl_n`), followed by `r ta_secondcommon_lvl` (`r ta_secondcommon_lvl_n`) and `r ta_leastcommon_lvl` (`r ta_leastcommon_lvl_n`). 
+On average, taxa occurred in `r ta_mu_occ` typical assemblages. 
+The family Chironomidae was included in all typical assemblages.
+The most common genera were Ancylus, Baetis, Esolus, Hydropsyche, and Limnius all of which occurred in four typical assemblages.
+*Serratella ignita* was the only species included in the typical assemblages and was typical for BRT4_5, BRT2_3_8_9_10_11 and BRT15_16.
+The average size of typical assemblages was `r ta_mean_size` with a standard deviation of `r ta_sd_size`.
+The largest typical assemblage was `r ta_biggest_name` with `r ta_biggest_size` taxa and the smallest was `r ta_smallest_name` with `r ta_smallest_size` taxa. 
+To compare taxonomic resolution across typical assemblages, we assigned a value of three to each species, two to genera and one to lower taxonomic levels. 
+The mean taxonomic resolution was `r round(ald_overall$mean2,1)` with a standard deviation of `r round(ald_overall$sd,1)`.
+The river type BRT4_5  had the highest taxonomic resolutions (2). 
+BRT14 and BRT18 had the lowest taxonomic resolution (1.0)

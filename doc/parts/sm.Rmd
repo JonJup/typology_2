@@ -1,0 +1,209 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+# Supplementary Materials
+
+## Distribution of removed sampling sites 
+
+```{r fig-map-removed, fig.cap = "Maps of removed sampling sites. The first map (too far) shows sites that were more than 500 meters removed from the closesed BRT river segement. The second map (imparied) shows sites that were categorized as impaired. The third map (before 2000) shows sites that were sampled before 2000. "}
+
+readPNG("figures/map_sites_removed.png") %>% 
+  grid.raster()
+```
+
+In table \@ref(tab:tab-impact-criteria), *Land use* refers to the 20% cutoff for relative area of agriculture or urban areas in a catchment. This criterion was applied wherever no other information was available. IASPT is short for Iberian Average score per taxon which refers to the average Iberian biological monitoring working party score (IBMWP, between 1 and 10) of a sample. The IASPT has been shown to be a reliable indicator of water quality [e.g. @Leunda2009; @Munne2009]. The Biological Diatom Index (BDI) [@lenoir1996development] is a standardized way to evaluate the quality of freshwater systems in France using diatoms.\
+In two of the data sets (RIVPACS and Koutajoki) the sampling sites were selected to represent reference conditions so we used all of the sites.
+For the data from the RCS national network several qualitative metrics were available.
+The measured stressors were: organic matter, nitrogen compounds (except nitrates), nitrates, phosphorous compounds, suspended matter, organic micropollutants (other), mineral micropolluants (metal), pesticides and polycyclic aromatic hydrocarbons (PAH).
+Each was rated on a scale of high, good, intermediate, poor and bad.
+All sites for which two or more categories were rated as intermediate or one more were rated as either poor or bad was removed from the analysis.
+
+\newpage
+
+## Flexible beta clustering
+
+This section describes in greater detail how we computed the flexible beta clustering of the sampling sites.
+We used flexible beta clustering as it has been shown to be robust to various potential problems like outliers or noisy data [@Milligan1989].
+We employed the common parameterization of $(\alpha_1 = \alpha_2 = \alpha, \beta = (1-\alpha)/2, \gamma = 0)$ and varied beta in ten steps from -1 to 1 (-1, -0.77, -0.55, -0.33, -0.11, 0.11, 0.33, 0.55, 0.77, 1).
+We cut the resulting dendograms at each split between 2 and 30 final nodes.
+For each of the resulting 290 clusterings we calculated the average silhouette, width, cophenetic correlation coefficient and the cluster membership entropy.
+
+\newpage
+
+## Cluster validity metrics
+
+### Average silhouette width
+
+The silhouette width $s(i)$ is defined as follows:
+
+1.  Compute $a_i$, the average dissimilarity between sample $i$ and all other samples from the same type
+2.  Among all other clusters $C$, find the cluster than minimizes $d(i,C)$ the average distance of $i$ to all observations of $C$. This cluster is $b$; $b_i = \min_C(d(i,C))$.
+3.  $s(i) = \dfrac{b_i-a_i}{max(a_i,b_i)}$
+4. The average silhouette width is the arithmetic mean of all silhouette widhts. $ASW = \frac{1}{n}\Sigma_{i=1}^n s(i)$
+
+@Lengyel2019 recently proposed a generalized version of the ASW.
+The classic ASW employs the arithmetic average to compute $a_i$ and $b_i$, which assumes that spherical clusters are optimal.
+Using a generalized mean instead, we can flexibly adjust our validity metric to put a stronger emphasis on compactness ($a_i$) or separation ($b_i$).
+The generalized mean of degree $p$ ($M^p$) is computed as: $$ M^p (\mathbf{x}) = \bigg( \dfrac{1}{n} \Sigma_{i=1}^n x_i^p\bigg)^{1/p} $$ The generalized mean can take the value of common summary statistics such as the minimum ($p=-\infty$), the maximum ($p=\infty$) or the harmonic mean ($p=-1$).
+For example, for $p=-\infty$ the silhouette width is the difference between the minimum distance of observation $i$ to any other observation from the same type and the minimum distance from that observation to any observation from the next closest type.
+This perspective excludes outliers and values separation over compactness.
+The weighting shifts towards compactness as we increase $p$.
+We evaluated the silhouette width for $p\ \in \{-\infty,-2,-1,1,2,\infty\}$.
+If not further specified, ASW refers to the common average silhouette width (i.e. $p = 1$) in the remainder of the text.
+
+
+### Calinski Harabasz Index 
+
+The Calinski-Harabasz Index [CH, @calinski1974dendrite] is computed as $$CH = \dfrac{BGSS}{WGSS} \times \dfrac{n-k}{k-1}$$ where $BGSS$ is the squared sum of distances between group centroids and the overall centroid (between group sum-of-squares), $WGSS$ is sum of squares of distances between observations of one group (within group sum-of-squares), $k$ is the number of clusters. High values indicate that variation within types is smaller than between types. As the second term controls for the degrees of freedom, here determined by the number of clusters, it can be understood as an analog to the F-Statistic. The algorithm assumes Euclidean data but good performance with a similar metric was shown for binary data in the context of fMRI-scans [@Dimitriadou2004].
+
+### Indicator Value Statistic 
+
+<!-- old text from methods section --> 
+Both indicator and typical assemblages were derived for BRT20.
+We used the IndVal approach of @dufrene1997species to identify indicator taxa. For this analysis, we used *data genus* which consists of genus-level presence-absence data. The IndVal can be understood as the product of the two quantities $A$ and $B$. For our purposes, $A$ is the relative number of observations of taxon $i$ that are within type $j$. It was initially described as specificity [@dufrene1997species] but is better understood as concentration [@Podani2010] because it is independent of the total number of types. $B$ is the relative frequency with which species $i$ occurs in type $j$. The maximum score is assigned to a species that only occurs in one type ($A=1$) and occurs in all samples of that type ($B=1$). Here, we used the group-equalized version of the IndVal which accounts for the fact that the number of samples differs between types. The statistical significance of the IndVal statistic was assessed with a permutation test that computes IndVal values for random permutations of sites and types and compares the observed IndVal against this empirical distribution. We used $2*10^5$ permutations. We controlled the family-wise error rate with Bonferroni's correction [@bonferroni1935calcolo]. This correction is conservative and has low statistical power [@Nakagawa2004; @Garcia2004].
+Hence, we regard the hypothesis, that a genus is an indicator for a broad river type, strongly supported by our data if we find the indication to be statistically significant.
+We used 0.05 as the base significance level.
+
+
+\newpage
+
+```{r tab-types}
+data = readRDS("data/12_sxs_genus_typology_wo_bio.rds")
+#data = readRDS("../../data/12_sxs_genus_typology_wo_bio.rds")
+gloric_unique = data %>% pull("gloric") %>% unique %>% sort
+brt12_unique  = data %>% pull("ls12") %>% unique %>% sort
+brt12_unique = brt12_unique[c(1,4:11,2,3)]
+brt20_unique  = data %>% pull("ls20") %>% unique %>% sort
+brt20_unique = brt20_unique[c(1,9:13,2:8)]
+illies_unique = data %>% pull("illies") %>% unique %>% sort
+eea_unique    = data %>% pull("eea") %>% unique %>% sort
+
+s1 = data.table(Typology = c("BRT12", "BRT20", "GloRiC", "Illies", "BGR"), 
+           Types    = c(
+                   paste(brt12_unique, collapse = ",\ "), 
+                   paste(brt20_unique , collapse = ",\ "),     
+                   paste(gloric_unique, collapse = ",\ "),     
+                   paste(illies_unique, collapse = ",\ "),     
+                   paste(eea_unique, collapse = ",\ ")     
+                        )
+           )
+s1_hux =
+        s1 %>%
+        as_hux(add_colnames = TRUE) %>%
+        set_wrap(TRUE) %>%
+        set_bold(1, everywhere) %>% 
+        set_bottom_border(1, everywhere) %>% 
+        set_width(1) %>% 
+        set_number_format(0) %>%
+        set_font_size(7) 
+        #set_right_border(everywhere, everywhere, brdr(1, "solid", "black")) %>% 
+        # set_col_width(col = 1, value = .2) %>% 
+        # set_col_width(col = 2, value = .07) %>% 
+        # set_col_width(col = 3, value = .08) %>% 
+        # set_col_width(col = 4, value = .08) %>% 
+        # set_col_width(col = 5, value = .2) %>% 
+        # set_col_width(col = 6, value = .2) 
+caption(s1_hux) = "Types of different typologies that were used in the analyses."
+s1_hux
+```
+
+\newpage
+
+```{r tab-sm-typicals}
+# ta_table = readRDS("data/18_ta_table_for_paper.rds")
+# #ta_table = readRDS("../../data/18_ta_table_for_paper.rds")
+# # sig_id =map(.x = 2:ncol(ta_table),
+# #     .f = ~ str_detect(pull(ta_table[,.x]), "\\*")
+# # )
+# 
+# ta_table %>%
+#         kbl("latex",
+#             longtable = TRUE,
+#             caption = "Typical assemblages. Values give the proportion of sites of broad tiver type where the taxon is present. Combinations for which a taxon is found to be typical are marked with *.",
+#             booktabs = TRUE
+#             ) %>%
+#         kable_styling(
+#                 latex_options = c("hold_position",
+#                                   "repeat_header"),
+#                 full_width = TRUE,
+#                 font_size = 9
+#         ) %>%
+#         row_spec(0, bold = T) 
+```
+
+\newpage
+
+```{r tab-sm-indi}
+# indi = readRDS("data/15_indicator_list_w_non_significant.rds")
+# #indi = readRDS("../../data/15_indicator_list_w_non_significant.rds")
+# names(indi) = paste0("RT", c(1,2,3,4,5,8,9, 10, 11, 14, 15, 16, 18))
+# for (i in 1:length(indi)){
+#                 indi[[i]]$rt = names(indi)[i]
+# }
+# ## - drop empty types 
+# indi2 <- rbindlist(indi)
+# 
+# indi2 %>%
+#         arrange(taxon) %>%
+#         filter(taxon != "Hydracarina") %>% 
+#         mutate(indval = round(indval, 2))  %>% 
+#         mutate(indval_chr = as.character(indval))  %>% 
+#         mutate(indval_chr = case_when(indicator ~ paste0(indval_chr, "*"),
+#                                       !indicator ~ indval_chr))  %>% 
+#         pivot_wider(id_cols = taxon,
+#                     names_from = rt,
+#                     values_from = indval_chr) %>%
+#         relocate(RT3, .before = RT4) %>%
+#         relocate(RT2, .before = RT3) %>%
+#         relocate(RT1, .before = RT2) %>%
+#         relocate(RT8, .before = RT9) %>%
+#         relocate(RT10, .before = RT11) %>% 
+#         mutate(across(!taxon, function(x)ifelse(is.na(x),0,x))) ->
+#         indi3
+# 
+# ## -- which rows contain taxa that are indicative for any stream type 
+# indi3$id = apply(indi3, 1, function(x) any(str_detect(string = x, pattern = "\\*")))
+# 
+# ## -- make kable table 
+# indi3 %>%
+#         ## -- only genera that are indicators
+#         filter(id == TRUE) %>%
+#         ## -- drop id column 
+#         dplyr::select(!id) %>% 
+#         ## -- kbl as wrapper for kable()
+#         kbl(
+#                 format = "latex",
+#                 longtable = TRUE,
+#                 caption = "Indicator scores for all taxon and stream type combination where at least one is statistically                            significant. Statistically significat entries are marked with *.",
+#                 booktabs = TRUE
+#         ) %>%
+#         kable_styling(
+#                 latex_options = c("hold_position",
+#                                   "repeat_header"),
+#                 full_width = TRUE,
+#                 font_size = 7
+#         ) %>% 
+#         row_spec(0, bold = T) %>% 
+#         column_spec(column = 1, width = "4cm")
+```
+
+```{r old hux code typical}
+#ta_table = readRDS("../../data/18_ta_table_for_paper.rds")
+# hux_ta_table = as_huxtable(ta_table)
+# hux_ta_table %<>%
+#         map_background_color(
+#                              fn = by_ranges(breaks = c(0.2),
+#                                             values = c("white", "green"))) %>%
+#         # map_text_color(
+#         #                fn = by_values("1" = "green", "0" = "white")) %>%
+#         set_bold(1, everywhere) %>% 
+#          set_font_size(7) %>% 
+#         set_all_borders(1) %>% 
+#         set_row_height(.0001)
+# hux_l = split_across(hux_ta_table, after = 25)
+# hux_l[[1]]
+# hux_l[[2]]
+```
